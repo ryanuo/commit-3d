@@ -18,10 +18,16 @@ jobs:
       with:
         node-version: 16
 
-    - name: Node Build
+    - name: Configure GitHub Token
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git config --global user.name "ryanuo"
         git config --global user.email "1577791638@qq.com"
+        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
+    - name: Node Build
+      run: |
         npm i
         npm run build
         npm run gh
