@@ -1,16 +1,7 @@
-<!--
- * @Description:
- * @Author: Harry
- * @Date: 2021-11-04 11:52:24
- * @Url: https://u.mr90.top
- * @github: https://github.com/ryanuo
- * @LastEditTime: 2021-11-04 19:57:32
- * @LastEditors: Harry
--->
 <template>
   <div class="heads_top">
     <a
-      href="https://github.com/ryanuo/github_commit_echarts"
+      href="https://github.com/ryanuo/commit-3d"
       class="github-corner"
       target="_blank"
       aria-label="View source on GitHub"
