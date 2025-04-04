@@ -1,12 +1,3 @@
-<!--
- * @Description:
- * @Author: Harry
- * @Date: 2021-11-03 19:36:24
- * @Url: https://u.mr90.top
- * @github: https://github.com/ryanuo
- * @LastEditTime: 2023-07-02 20:52:26
- * @LastEditors: harry
--->
 <template>
   <div class="container-github">
     <div class="github_w" ref="githubRef"></div>
@@ -84,7 +75,6 @@ export default {
     initChart() {
       this.ChartsInstance = this.$echarts.init(this.$refs.githubRef)
       const initOption = {
-        tooltip: {},
         visualMap: {
           itemWidth: 50, // 图形的宽度，即长条的宽度。
           itemHeight: 200, // 图形的高度，即长条的高度。
@@ -114,12 +104,16 @@ export default {
           name: '',
           axisLabel: {
             show: true,
-            margin: 15
+            margin: 16
           }
         },
         zAxis3D: {
           type: 'value',
-          name: ''
+          name: '',
+          axisLabel: {
+            show: true,
+            margin: 16
+          }
         },
         splitArea: {
           interval: '2'
@@ -163,17 +157,17 @@ export default {
             type: 'bar3D',
             shading: 'lambert',
             label: {
-              fontSize: 16,
+              fontSize: 12,
               borderWidth: 1
             },
             emphasis: {
               label: {
-                fontSize: 16,
-                color: '#900',
+                fontSize: 12,
+                color: COLORLIST[`${this.theme}`][5],
                 fontWeight: 500
               },
               itemStyle: {
-                color: '#900'
+                color: COLORLIST[`${this.theme}`][5]
               }
             }
           }
@@ -232,7 +226,7 @@ export default {
       const updateOption = {
         series: [
           {
-            data: this.data.map(function(item) {
+            data: this.data.map(function (item) {
               return {
                 value: item.value,
                 dateList: item.date
@@ -245,6 +239,18 @@ export default {
               },
               textStyle: {
                 color: 'green'
+              }
+            },
+            emphasis: {
+              label: {
+                color: COLORLIST[`${this.theme}`][5],
+                textStyle: {
+                  borderColor: COLORLIST[`${this.theme}`][0],
+                  borderWidth: 0.5
+                }
+              },
+              itemStyle: {
+                color: COLORLIST[`${this.theme}`][5]
               }
             }
           }
@@ -287,7 +293,7 @@ export default {
       this.ChartsInstance.resize()
     },
     // 点击按钮时切换用户
-    changeUsername: debounce(function() {
+    changeUsername: debounce(function () {
       this.getData()
     }, 3000, true),
     // 主题的切换
@@ -328,7 +334,6 @@ export default {
 
   input {
     width: 170px;
-    -webkit-appearance: none;
     background-color: #fff;
     background-image: none;
     border-radius: 4px;
