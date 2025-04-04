@@ -1,11 +1,20 @@
 <template>
   <div class="container-github">
-    <div class="github_w" ref="githubRef"></div>
+    <div class="github_canvas" ref="githubRef" />
+    <svg class="loading" v-if="!data.length" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+      viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-dasharray="16" stroke-dashoffset="16" stroke-linecap="round"
+        stroke-linejoin="round" stroke-width="2" d="M12 3c4.97 0 9 4.03 9 9">
+        <animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="16;0" />
+        <animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate"
+          values="0 12 12;360 12 12" />
+      </path>
+    </svg>
     <div class="input_name">
       <input :style="outStyle" type="text" placeholder="请输入Github用户名" v-model="Username" />
       <button @click="changeUsername" :style="btnStyle">切换</button>
     </div>
-    <right-top></right-top>
+    <right-top />
     <theme-change @theme="getTheme"></theme-change>
   </div>
 </template>
@@ -39,7 +48,6 @@ export default {
       theme: 'theme1',
       query: '',
       Username: 'ryanuo'
-
     }
   },
   computed: {
@@ -63,117 +71,123 @@ export default {
     window.removeEventListener('resize', this.screenAdapter)
   },
   mounted() {
-    // const username = window.location.search.split('=')[1]
-    // this.username = username
     this.getData()
-    this.initChart()
     window.addEventListener('resize', this.screenAdapter)
-    this.screenAdapter()
+  },
+  watch: {
+    data_list() {
+      if (this.data_list.length) {
+        this.initChart()
+        this.updataCharts()
+        this.screenAdapter()
+      }
+    }
   },
   methods: {
     // 初始化图表
     initChart() {
-      this.ChartsInstance = this.$echarts.init(this.$refs.githubRef)
-      const initOption = {
-        visualMap: {
-          itemWidth: 50, // 图形的宽度，即长条的宽度。
-          itemHeight: 200, // 图形的高度，即长条的高度。
-          max: 20
-        },
-        xAxis3D: {
-          type: 'category',
-          // splitNumber: 6,
-          name: '', // 坐标轴名称
-          boundaryGap: true, // 坐标轴两边是否留白
-          // minInterval: 1,
-          // scale: true,
-          axisLine: {
-            show: true,
-            interval: 3 // (此处无效？)坐标轴刻度标签的显示间隔，在类目轴中有效。如果设置为 1，表示『隔一个标签显示一个标签』，如果值为 2，表示隔两个标签显示一个标签，以此类推。
+      if (this.$refs.githubRef && this.data_list.length) {
+        this.ChartsInstance = this.$echarts.init(this.$refs.githubRef)
+        const initOption = {
+          visualMap: {
+            itemWidth: 50, // 图形的宽度，即长条的宽度。
+            itemHeight: 200, // 图形的高度，即长条的高度。
+            max: 20
           },
-          axisLabel: {
-            show: true,
-            // margin: 20,
-            interval: 3, // 可控制坐标轴刻度标签的显示间隔，在类目轴中有效。
-            formatter: '{value}' // 自定义x轴显示数据标签格式
-          }
-        },
-        yAxis3D: {
-          type: 'category',
-          data: this.days,
-          name: '',
-          axisLabel: {
-            show: true,
-            margin: 16
-          }
-        },
-        zAxis3D: {
-          type: 'value',
-          name: '',
-          axisLabel: {
-            show: true,
-            margin: 16
-          }
-        },
-        splitArea: {
-          interval: '2'
-        },
-        grid3D: {
-          boxWidth: 400,
-          boxDepth: 100,
-          // show: false, // 是否显示三维迪卡尔坐标
-          width: 'auto',
-          viewControl: {
-            // projection: 'orthographic'
-            projection: 'perspective', // 先设置为这个perspective
-            distance: 500 // 默认缩放比例
-          },
-          light: {
-            main: {
-              intensity: 1.2,
-              shadow: true
+          xAxis3D: {
+            type: 'category',
+            name: '', // 坐标轴名称
+            boundaryGap: true, // 坐标轴两边是否留白
+            axisLine: {
+              show: true,
+              interval: 3 // (此处无效？)坐标轴刻度标签的显示间隔，在类目轴中有效。如果设置为 1，表示『隔一个标签显示一个标签』，如果值为 2，表示隔两个标签显示一个标签，以此类推。
             },
-            ambient: {
-              intensity: 0.3
+            axisLabel: {
+              show: true,
+              margin: 16,
+              interval: 3, // 可控制坐标轴刻度标签的显示间隔，在类目轴中有效。
+              formatter: '{value}' // 自定义x轴显示数据标签格式
             }
           },
-          axisLine: {
-            // show: false  // 是否显示坐标线
+          yAxis3D: {
+            type: 'category',
+            data: this.days,
+            name: '',
+            axisLabel: {
+              show: true,
+              margin: 16
+            }
           },
-          axisTick: {
-            // show: false // 是否显示出刻度
+          zAxis3D: {
+            type: 'value',
+            name: '',
+            axisLabel: {
+              show: true,
+              margin: 16
+            }
           },
-          splitLine: {
-            // 平面上的分隔线。
-            show: false // 立体网格线
+          splitArea: {
+            interval: '2'
           },
-          axisPointer: {
-            // 坐标轴指示线。
-            show: false // 鼠标在chart上的显示线
-          }
-        },
-        series: [
-          {
-            type: 'bar3D',
-            shading: 'lambert',
-            label: {
-              fontSize: 12,
-              borderWidth: 1
+          grid3D: {
+            boxWidth: 400,
+            boxDepth: 100,
+            // show: false, // 是否显示三维迪卡尔坐标
+            width: 'auto',
+            viewControl: {
+              // projection: 'orthographic'
+              projection: 'perspective', // 先设置为这个perspective
+              distance: 500 // 默认缩放比例
             },
-            emphasis: {
+            light: {
+              main: {
+                intensity: 1.2,
+                shadow: true
+              },
+              ambient: {
+                intensity: 0.3
+              }
+            },
+            axisLine: {
+              // show: false  // 是否显示坐标线
+            },
+            axisTick: {
+              // show: false // 是否显示出刻度
+            },
+            splitLine: {
+              // 平面上的分隔线。
+              show: false // 立体网格线
+            },
+            axisPointer: {
+              // 坐标轴指示线。
+              show: false // 鼠标在chart上的显示线
+            }
+          },
+          series: [
+            {
+              type: 'bar3D',
+              shading: 'lambert',
               label: {
                 fontSize: 12,
-                color: COLORLIST[`${this.theme}`][5],
-                fontWeight: 500
+                borderWidth: 1
               },
-              itemStyle: {
-                color: COLORLIST[`${this.theme}`][5]
+              emphasis: {
+                label: {
+                  fontSize: 12,
+                  color: COLORLIST[`${this.theme}`][5],
+                  fontWeight: 500
+                },
+                itemStyle: {
+                  color: COLORLIST[`${this.theme}`][5]
+                }
               }
             }
-          }
-        ]
+          ]
+        }
+
+        if (!this.ChartsInstance) return
+        this.ChartsInstance.setOption(initOption)
       }
-      this.ChartsInstance.setOption(initOption)
     },
     // 获取数据
     handleMouth() {
@@ -283,17 +297,23 @@ export default {
           }
         }
       }
+      if (!this.ChartsInstance) {
+        return
+      }
       this.ChartsInstance.setOption(updateOption)
     },
     // 屏幕的适配
     screenAdapter() {
       this.titleFontSize = this.$refs.githubRef.offsetWidth
       const adapterOption = {}
+      if (!this.ChartsInstance) return
       this.ChartsInstance.setOption(adapterOption)
       this.ChartsInstance.resize()
     },
     // 点击按钮时切换用户
     changeUsername: debounce(function () {
+      this.data = []
+      this.updataCharts()
       this.getData()
     }, 3000, true),
     // 主题的切换
@@ -311,7 +331,7 @@ export default {
   width: 100%;
   height: 100vh;
 
-  .github_w {
+  .github_canvas {
     width: 100%;
     height: 100%;
   }
@@ -364,5 +384,15 @@ export default {
     color: #fff;
     .com_i_b;
   }
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  z-index: 9999;
 }
 </style>
